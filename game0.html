@@ -9,7 +9,11 @@
   <div id="pa"></div>
   <div id="ga"></div>
   <div>
-  </div><input type="button" id="reset" value="Reset" /></div>
+    <h1>Game0</h1>
+    <p id="score">Score:</p>
+    <input type="button" id="reset" value="Reset" />
+    <h2 id="status"></h2>
+  </div>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js">
@@ -18,7 +22,8 @@
 <script>
 game0.init ({
   game_area: $('#ga'),
-  preview_area: $('#pa')
+  preview_area: $('#pa'),
+  score: $('#score')
 });
 
 $(document).on ('keydown', function (e) {
@@ -46,11 +51,12 @@ function step ()
   if (!game0.step ())
   {
     window.clearInterval (timer0);
-    alert ('Done');
+    $('#status').text ('Game Over!');
   }
 }
 
 $('#reset').on ('click', function () {
+  $('#status').text ('');
   window.clearInterval (timer0);
   game0.reset ();
   timer0 = window.setInterval (step, 1000);

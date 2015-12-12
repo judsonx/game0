@@ -1,15 +1,10 @@
-#pa, #ga, #ca {
-  padding: 0;
+#pa, #ga {
   background-color: #303030;
   border: 2px solid #10101;
   margin: 10px;
 }
 
-#pa {
-  float: left;
-}
-
-#ga {
+#ga, #pa {
   float: left;
 }
 

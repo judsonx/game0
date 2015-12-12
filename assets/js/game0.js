@@ -11,11 +11,13 @@ var game0 = (function ($, document) {
 
   var game_area_e_;
   var preview_area_e_;
+  var score_e_;
   var state_;
   var pos_ = { x: -1, y: -1 };
   var next_shape_ = 0;
   var current_shape_ = 0;
   var orientation_ = 0;
+  var score_ = 0;
 
   var shape0_ = {
     index: CELL_S0,
@@ -231,12 +233,17 @@ var game0 = (function ($, document) {
         var value = CELL_EMPTY;
         if (row_index < shape.size.y && col_index <= shape.size.x)
         {
-           if (shape.grid[row_index][col_index])
-             value = shape.index;
+          if (shape.grid[row_index][col_index])
+            value = shape.index;
         }
         update_cell ($(cell_div), value);
       })
     });
+  }
+
+  function update_score (score)
+  {
+    score_e.text ('Score: ' + score);
   }
 
   function reset ()
@@ -245,15 +252,18 @@ var game0 = (function ($, document) {
     next_shape_ = get_next_shape ();
     current_shape_ = get_next_shape ();
     orientation_ = 0;
+    score_ = 0;
     update_preview (next_shape_);
     reset_pos ();
     update_game (state_, state_);
+    update_score (score_);
   }
 
   function init (config)
   {
     init_ga (config.game_area);
     init_pa (config.preview_area);
+    score_e = config.score;
   }
 
   function update_cell (element, id)
@@ -331,6 +341,10 @@ var game0 = (function ($, document) {
     next_shape_ = get_next_shape ();
     update_preview (next_shape_);
     reset_pos ();
+    var result = clear_full_rows (state_);
+    state_ = result.state;
+    score_ += result.count;
+    update_score (score_);
 
     return true;
   }
@@ -387,6 +401,44 @@ var game0 = (function ($, document) {
   function on_ctrl_toggle ()
   {
     toggle_orientation ();
+  }
+
+  function is_full_row (row)
+  {
+    for (var i = 0; i < COLS; ++i)
+    {
+      if (!row[i])
+        return false;
+    }
+    return true;
+  }
+
+  function clear_full_rows (state)
+  {
+    var count = 0;
+    var out = [];
+    for (var i = ROWS - 1; i >= 0; --i)
+    {
+      if (!is_full_row (state[i]))
+      {
+        out.push (state[i]);
+      }
+      else
+      {
+        ++count;
+      }
+    }
+
+    for (var j = out.length; j < ROWS; ++j)
+    {
+      var row = [];
+      for (var k = 0; k < COLS; ++k)
+        row.push (CELL_EMPTY);
+      out.push (row);
+    }
+
+    out.reverse ();
+    return { state: out, count: count };
   }
 
   return {
