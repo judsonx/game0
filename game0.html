@@ -12,9 +12,15 @@
 </header>
 <div class="content">
   <div>
-    <p id="score">Score: 0</p>
-    <p>Status: <span id="status">Not Started</span></p>
-    <input type="button" id="reset" value="Start" />
+    <table>
+      <tr><td>Score:</td><td id="score">0</td></tr>
+      <tr><td>Lines:</td><td id="lines">0</td></tr>
+      <tr><td>Status:</td><td id="status">Not Started</td></tr>
+      <tr>
+        <td><input type="button" id="reset" value="Start"/></td>
+        <td><input type="button" id="pause" value="Pause" disabled/></td>
+      </tr>
+    </table>
   </div>
   <div id="play_area">
     <div id="group">
@@ -45,7 +51,6 @@
 game0.init ({
   game_area: $('#ga'),
   preview_area: $('#pa'),
-  score: $('#score')
 });
 
 // See: http://stackoverflow.com/questions/15804296/
@@ -87,23 +92,53 @@ $(document).on ('keydown', function (e) {
   }
 });
 
-var timer0;
+var timer0 = { interval: 1000 }
+
+function set_status (status)
+{
+  $('#status').text (status);
+}
+
+function unpause ()
+{
+  var e = $('#pause');
+  e.prop ('disabled', false);
+  e.unbind ('click');
+  timer0.id = setInterval (step, timer0.interval);
+  e.prop ('value', "Pause").on ('click', pause);
+  set_status ('In-Progress');
+  game0.set_paused (false);
+}
+
+function pause (timer)
+{
+  var e = $('#pause');
+  e.unbind ('click');
+  clearInterval (timer0.id);
+  e.prop ('value', "Continue").on ('click', unpause);
+  set_status ('Paused');
+  game0.set_paused (true);
+}
 
 function step ()
 {
   if (!game0.step ())
   {
-    window.clearInterval (timer0);
-    $('#status').text ('Game Over!');
+    clearInterval (timer0.id);
+    set_status ('Game Over!');
+    $('#pause').prop ('disabled', true);
   }
+  $('#score').text (game0.get_score ());
+  $('#lines').text (game0.get_lines ());
 }
 
 $('#reset').on ('click', function () {
-  $('#status').text ('In-Progress');
+  if (timer0.hasOwnProperty ('id'))
+    clearInterval (timer0.id);
+  set_status ('In-Progress');
   $('#reset').prop ('value', 'Re-Start');
-  window.clearInterval (timer0);
   game0.reset ();
-  timer0 = window.setInterval (step, 1000);
+  unpause ();
 });
 
 </script>

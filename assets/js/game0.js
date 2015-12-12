@@ -11,13 +11,14 @@ var game0 = (function ($, document) {
 
   var game_area_e_;
   var preview_area_e_;
-  var score_e_;
   var state_;
   var pos_ = { x: -1, y: -1 };
   var next_shape_ = 0;
   var current_shape_ = 0;
   var orientation_ = 0;
   var score_ = 0;
+  var lines_ = 0;
+  var paused_ = true;
 
   var shape0_ = {
     index: CELL_S0,
@@ -241,11 +242,6 @@ var game0 = (function ($, document) {
     });
   }
 
-  function update_score (score)
-  {
-    score_e.text ('Score: ' + score);
-  }
-
   function reset ()
   {
     state_ = create_empty_state ();
@@ -253,17 +249,16 @@ var game0 = (function ($, document) {
     current_shape_ = get_next_shape ();
     orientation_ = 0;
     score_ = 0;
+    lines_ = 0;
     update_preview (next_shape_);
     reset_pos ();
     update_game (state_, state_);
-    update_score (score_);
   }
 
   function init (config)
   {
     init_ga (config.game_area);
     init_pa (config.preview_area);
-    score_e = config.score;
   }
 
   function update_cell (element, id)
@@ -343,8 +338,8 @@ var game0 = (function ($, document) {
     reset_pos ();
     var result = clear_full_rows (state_);
     state_ = result.state;
-    score_ += result.count;
-    update_score (score_);
+    score_ += Math.pow (result.count, 2);
+    lines_ += result.count;
 
     return true;
   }
@@ -373,6 +368,9 @@ var game0 = (function ($, document) {
 
   function on_ctrl_left ()
   {
+    if (paused_)
+      return;
+
     var state = create_empty_state ();
     var try_pos = { x: pos_.x - 1, y: pos_.y };
     if (place_shape (state_, state, current_shape (), try_pos))
@@ -384,6 +382,9 @@ var game0 = (function ($, document) {
 
   function on_ctrl_right ()
   {
+    if (paused_)
+      return;
+
     var state = create_empty_state ();
     var try_pos = { x: pos_.x + 1, y: pos_.y };
     if (place_shape (state_, state, current_shape (), try_pos))
@@ -395,12 +396,14 @@ var game0 = (function ($, document) {
 
   function on_ctrl_down ()
   {
-    step ();
+    if (!paused_)
+      step ();
   }
 
   function on_ctrl_toggle ()
   {
-    toggle_orientation ();
+    if (!paused_)
+      toggle_orientation ();
   }
 
   function is_full_row (row)
@@ -441,6 +444,21 @@ var game0 = (function ($, document) {
     return { state: out, count: count };
   }
 
+  function get_score ()
+  {
+    return score_;
+  }
+
+  function get_lines ()
+  {
+    return lines_;
+  }
+
+  function set_paused (paused)
+  {
+    paused_ = paused;
+  }
+
   return {
     init: init,
     step: step,
@@ -448,6 +466,9 @@ var game0 = (function ($, document) {
     on_ctrl_right: on_ctrl_right,
     on_ctrl_toggle: on_ctrl_toggle,
     on_ctrl_down: on_ctrl_down,
-    reset: reset
+    reset: reset,
+    get_score: get_score,
+    get_lines: get_lines,
+    set_paused: set_paused
   };
 } (jQuery, document));

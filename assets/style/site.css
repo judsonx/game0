@@ -75,7 +75,7 @@ div {
   background-color: #FFD0D0;
 }
 
-#reset {
+input[type="button"] {
   width: 10em;
 }
 
