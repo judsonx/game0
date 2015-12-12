@@ -6,13 +6,33 @@
 </head>
 <body>
 <div class="content">
-  <div id="pa"></div>
-  <div id="ga"></div>
-  <div>
-    <h1>Game0</h1>
-    <p id="score">Score:</p>
-    <input type="button" id="reset" value="Reset" />
-    <h2 id="status"></h2>
+  <div id="play_area">
+    <div id="group">
+      <div id="pa"></div>
+      <div id="ga"></div>
+      <div id="ca">
+        <table>
+          <tr>
+            <td colspan="2" id="toggle">Toggle</td>
+          </tr>
+          <tr>
+            <td id="left">Left</td>
+            <td id="right">Right</td>
+          </tr>
+          <tr>
+            <td colspan="2" id="down">Down</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="stats">
+    <div>
+      <h1>Game0</h1>
+      <p id="score">Score:</p>
+      <input type="button" id="reset" value="Reset" />
+      <h2 id="status"></h2>
+    </div>
   </div>
 </div>
 
@@ -25,6 +45,11 @@ game0.init ({
   preview_area: $('#pa'),
   score: $('#score')
 });
+
+$('#left').on ('click', function () { game0.on_ctrl_left (); });
+$('#right').on ('click', function () { game0.on_ctrl_right (); });
+$('#toggle').on ('click', function () { game0.on_ctrl_toggle (); });
+$('#down').on ('click', function () { game0.on_ctrl_down (); });
 
 $(document).on ('keydown', function (e) {
   switch (e.keyCode)

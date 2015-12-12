@@ -1,11 +1,42 @@
-#pa, #ga {
-  background-color: #303030;
-  border: 2px solid #10101;
-  margin: 10px;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: helvetica, verdana, sans-serif;
 }
 
-#ga, #pa {
+#ga, #pa, #ca {
+  margin: 10px;
   float: left;
+}
+
+#group {
+  float: left;
+}
+
+#ca {
+  width: 100%;
+  clear: both;
+}
+
+#ca table
+{
+  width: 100%;
+  text-align: center;
+}
+
+#ca td {
+  padding: 1em;
+  background-color: #D0D0D0;
+  text-align: center;
+}
+
+#ca td:active {
+  background-color: #FFD0D0;
+}
+
+#stats {
+  float: left;
+  padding-left: 30px;
 }
 
 #reset {
