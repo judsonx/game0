@@ -56,16 +56,16 @@ $(document).on ('keydown', function (e) {
   {
   case 38:
     game0.on_ctrl_toggle ();
-    break;
+    return false;
   case 40:
     game0.on_ctrl_down ();
-    break;
+    return false;
   case 37:
     game0.on_ctrl_left ();
-    break;
+    return false;
   case 39:
     game0.on_ctrl_right ();
-    break;
+    return false;
   }
 });
 
