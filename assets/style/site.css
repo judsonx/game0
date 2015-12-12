@@ -13,6 +13,10 @@
   float: left;
 }
 
+#reset {
+  width: 10em;
+}
+
 .row
 {
   float: none;
@@ -31,14 +35,6 @@
   min-height: 1px;
 }
 
-#ca {
-  float:left;
-  position: relative;
-  left: 100px;
-  width: 300px;
-  height: 100px;
-}
-
 .s0 {
   background-color: #FF0000 !important;
 }
@@ -48,5 +44,13 @@
 }
 
 .s2 {
+  background-color: #FF00FF !important;
+}
+
+.s3 {
+  background-color: #00FFFF !important;
+}
+
+.s4 {
   background-color: #0000FF !important;
 }

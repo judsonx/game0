@@ -8,15 +8,8 @@
 <div class="content">
   <div id="pa"></div>
   <div id="ga"></div>
-  <div id="ca">
-    <div>
-      <span id="toggle_ctrl">Toggle</span>
-    </div>
-    <div>
-      <span id="left_ctrl">Left</span>
-      <span id="right_ctrl">Right</span>
-    </div>
-  </div>
+  <div>
+  </div><input type="button" id="reset" value="Reset" /></div>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js">
@@ -27,9 +20,6 @@ game0.init ({
   game_area: $('#ga'),
   preview_area: $('#pa')
 });
-
-$('#left_ctrl').on ('click', function () { game0.on_ctrl_left (); });
-$('#right_ctrl').on ('click', function () { game0.on_ctrl_right (); });
 
 $(document).on ('keydown', function (e) {
   switch (e.keyCode)
@@ -49,13 +39,23 @@ $(document).on ('keydown', function (e) {
   }
 });
 
-var timer0 = window.setInterval (function () {
+var timer0;
+
+function step ()
+{
   if (!game0.step ())
   {
     window.clearInterval (timer0);
     alert ('Done');
   }
-}, 300);
+}
+
+$('#reset').on ('click', function () {
+  window.clearInterval (timer0);
+  game0.reset ();
+  timer0 = window.setInterval (step, 1000);
+});
+
 </script>
 </body>
 </html>

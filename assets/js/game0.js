@@ -1,12 +1,13 @@
 var game0 = (function ($, document) {
   var COLS = 10;
   var ROWS = 20;
-  var N_SHAPES = 3;
 
   var CELL_EMPTY = 0;
   var CELL_S0 = 1;
   var CELL_S1 = 2;
   var CELL_S2 = 3;
+  var CELL_S3 = 4;
+  var CELL_S4 = 5;
 
   var game_area_e_;
   var preview_area_e_;
@@ -42,7 +43,7 @@ var game0 = (function ($, document) {
       [1, 1],
       [1, 0]
     ],
-    offset: { x: 1, y: 1 }
+    offset: { x: 0, y: 1 }
   };
   var shape1_2_ = {
     index: CELL_S1,
@@ -51,7 +52,7 @@ var game0 = (function ($, document) {
       [1, 1, 1],
       [0, 1, 0],
     ],
-    offset: { x: 1, y: 1 }
+    offset: { x: 1, y: 0 }
   };
   var shape1_3_ = {
     index: CELL_S1,
@@ -71,19 +72,38 @@ var game0 = (function ($, document) {
       [1, 0],
       [1, 1]
     ],
-    offset: { x: 1, y: 1 }
+    offset: { x: 0, y: 1 }
   };
   var shape2_1_ = {
     index: CELL_S2,
     size: { x: 3, y: 2 },
     grid: [
       [1, 1, 1],
-      [0, 0, 1],
+      [1, 0, 0],
     ],
-    offset: { x: 1, y: 1 }
+    offset: { x: 1, y: 0 }
   };
   var shape2_2_ = {
     index: CELL_S2,
+    size: { x: 2, y: 3 },
+    grid: [
+      [1, 1],
+      [0, 1],
+      [0, 1]
+    ],
+    offset: { x: 1, y: 1 }
+  };
+  var shape2_3_ = {
+    index: CELL_S2,
+    size: { x: 3, y: 2 },
+    grid: [
+      [0, 0, 1],
+      [1, 1, 1],
+    ],
+    offset: { x: 1, y: 0 }
+  };
+  var shape3_0_ = {
+    index: CELL_S3,
     size: { x: 2, y: 3 },
     grid: [
       [0, 1],
@@ -92,35 +112,68 @@ var game0 = (function ($, document) {
     ],
     offset: { x: 1, y: 1 }
   };
-  var shape2_3_ = {
-    index: CELL_S2,
+  var shape3_1_ = {
+    index: CELL_S3,
     size: { x: 3, y: 2 },
     grid: [
       [1, 0, 0],
       [1, 1, 1],
     ],
-    offset: { x: 1, y: 1 }
+    offset: { x: 1, y: 0 }
+  };
+  var shape3_2_ = {
+    index: CELL_S3,
+    size: { x: 2, y: 3 },
+    grid: [
+      [1, 1],
+      [1, 0],
+      [1, 0]
+    ],
+    offset: { x: 0, y: 1 }
+  };
+  var shape3_3_ = {
+    index: CELL_S3,
+    size: { x: 3, y: 2 },
+    grid: [
+      [1, 1, 1],
+      [0, 0, 1],
+    ],
+    offset: { x: 1, y: 0 }
+  };
+  var shape4_0_ = {
+    index: CELL_S4,
+    size: { x: 4, y: 2 },
+    grid: [
+      [ 1, 1, 1, 1],
+      [ 0, 0, 0, 0],
+    ],
+    offset: { x: 1, y: 0 }
+  };
+  var shape4_1_ = {
+    index: CELL_S4,
+    size: { x: 1, y: 4 },
+    grid: [
+      [1], [1], [1], [1]
+    ],
+    offset: { x: 0, y: 3 }
   };
 
   var shapes_ = [
     [ shape0_ ],
     [ shape1_0_, shape1_1_, shape1_2_, shape1_3_ ],
-    [ shape2_0_, shape2_1_, shape2_2_, shape2_3_ ]
+    [ shape2_0_, shape2_1_, shape2_2_, shape2_3_ ],
+    [ shape3_0_, shape3_1_, shape3_2_, shape3_3_ ],
+    [ shape4_0_, shape4_1_ ]
   ];
 
   function get_next_shape ()
   {
-    return Math.floor (Math.random () * N_SHAPES);
+    return Math.floor (Math.random () * shapes_.length);
   }
 
   function current_shape ()
   {
-    var shape = shapes_[current_shape_][orientation_];
-    if (!shape)
-    {
-      console.log ('Invalid shape');
-    }
-    return shape;
+    return shapes_[current_shape_][orientation_];
   }
 
   function create_empty_state ()
@@ -140,7 +193,8 @@ var game0 = (function ($, document) {
 
   function reset_pos ()
   {
-    pos_ = { x: Math.floor (COLS / 2), y: -1 };
+    var offset = shapes_[current_shape_][0].size.y - 1;
+    pos_ = { x: Math.floor (COLS / 2), y: -1 * offset };
   }
 
   function build_grid (element, N_ROWS, N_COLS)
@@ -164,41 +218,54 @@ var game0 = (function ($, document) {
 
   function init_pa (preview_area_e)
   {
-    var PREVIEW_SIZE = 5;
+    var PREVIEW_SIZE = 4;
     build_grid (preview_area_e, PREVIEW_SIZE, PREVIEW_SIZE);
     preview_area_e_ = preview_area_e;
+  }
+
+  function update_preview (shape_index)
+  {
+    var shape = shapes_[shape_index][0];
+    preview_area_e_.children ().each (function (row_index, row_div) {
+      $(row_div).children ().each (function (col_index, cell_div) {
+        var value = CELL_EMPTY;
+        if (row_index < shape.size.y && col_index <= shape.size.x)
+        {
+           if (shape.grid[row_index][col_index])
+             value = shape.index;
+        }
+        update_cell ($(cell_div), value);
+      })
+    });
+  }
+
+  function reset ()
+  {
+    state_ = create_empty_state ();
+    next_shape_ = get_next_shape ();
+    current_shape_ = get_next_shape ();
+    orientation_ = 0;
+    update_preview (next_shape_);
+    reset_pos ();
+    update_game (state_, state_);
   }
 
   function init (config)
   {
     init_ga (config.game_area);
     init_pa (config.preview_area);
-    state_ = create_empty_state ();
-    reset_pos ();
-    next_shape_ = get_next_shape ();
-    current_shape_ = get_next_shape ();
-  }
-
-  function update_state (state)
-  {
-    for (var i = 0; i < ROWS; ++i)
-    {
-      for (var j = 0; j < COLS; ++j)
-      {
-        if (state[i][j])
-          state_[i][j] = state[i][j];
-      }
-    }
   }
 
   function update_cell (element, id)
   {
-    element.removeClass ('s0 s1 s2');
+    element.removeClass ('s0 s1 s2 s3 s4');
     var map = [
       function (e) {},
       function (e) { e.addClass ('s0'); },
       function (e) { e.addClass ('s1'); },
-      function (e) { e.addClass ('s2'); }
+      function (e) { e.addClass ('s2'); },
+      function (e) { e.addClass ('s3'); },
+      function (e) { e.addClass ('s4'); },
     ];
 
     map[id] (element);
@@ -216,9 +283,9 @@ var game0 = (function ($, document) {
     });
   }
 
-  function place_shape (state, shape, pos)
+  function place_shape (state0, state, shape, pos)
   {
-    var rv = true;
+    var count = 0;
     for (var i = 0; i < shape.size.y; ++i)
     {
       for (var j = 0; j < shape.size.x; ++j)
@@ -228,39 +295,20 @@ var game0 = (function ($, document) {
           var x = pos.x + j - shape.offset.x;
           var y = pos.y + i - shape.offset.y;
           if (x < 0)
-          {
-            rv = false;
-            continue;
-          }
+            return false;
           if (y < 0)
-          {
             continue;
-          }
           if (x >= state[0].length || y >= state.length)
-          {
-            rv = false;
-            continue;
-          }
-          state[y][x] = shape.index;
-        }
-      }
-    }
-    return rv;
-  }
+            return false;
+          if (state0[y][x])
+            return false;
 
-  function check_step (state)
-  {
-    for (var i = 0; i < ROWS; ++i)
-    {
-      for (var j = 0; j < COLS; ++j)
-      {
-        if (state[i][j] && state_[i][j])
-        {
-          return false;
+          state[y][x] = shape.index;
+          ++count;
         }
       }
     }
-    return true;
+    return count > 0;
   }
 
   function step ()
@@ -268,20 +316,20 @@ var game0 = (function ($, document) {
     var next_pos = { x: pos_.x, y: pos_.y + 1 };
     var state = create_empty_state ();
     var shape = current_shape ();
-    if (place_shape (state, shape, next_pos) && check_step (state))
+    if (place_shape (state_, state, shape, next_pos))
     {
       pos_ = next_pos;
       update_game (state_, state);
       return true;
     }
 
-    if (pos_.y < 0)
+    if (!place_shape (state_, state_, shape, pos_))
       return false;
 
-    place_shape (state_, shape, pos_)
     orientation_ = 0;
     current_shape_ = next_shape_;
     next_shape_ = get_next_shape ();
+    update_preview (next_shape_);
     reset_pos ();
 
     return true;
@@ -302,7 +350,7 @@ var game0 = (function ($, document) {
     var try_orientation = get_next_orientation (current_shape_, orientation_);
     var state = create_empty_state ();
     var shape = shapes_[current_shape_][try_orientation];
-    if (place_shape (state, shape, pos_) && check_step (state))
+    if (place_shape (state_, state, shape, pos_))
     {
       update_game (state_, state);
       orientation_ = try_orientation;
@@ -313,13 +361,10 @@ var game0 = (function ($, document) {
   {
     var state = create_empty_state ();
     var try_pos = { x: pos_.x - 1, y: pos_.y };
-    if (place_shape (state, current_shape (), try_pos))
+    if (place_shape (state_, state, current_shape (), try_pos))
     {
-      if (check_step (state))
-      {
-        update_game (state_, state);
-        pos_.x -= 1;
-      }
+      update_game (state_, state);
+      pos_.x -= 1;
     }
   }
 
@@ -327,13 +372,10 @@ var game0 = (function ($, document) {
   {
     var state = create_empty_state ();
     var try_pos = { x: pos_.x + 1, y: pos_.y };
-    if (place_shape (state, current_shape (), try_pos))
+    if (place_shape (state_, state, current_shape (), try_pos))
     {
-      if (check_step (state))
-      {
-        update_game (state_, state);
-        pos_.x += 1;
-      }
+      update_game (state_, state);
+      pos_.x += 1;
     }
   }
 
@@ -353,6 +395,7 @@ var game0 = (function ($, document) {
     on_ctrl_left: on_ctrl_left,
     on_ctrl_right: on_ctrl_right,
     on_ctrl_toggle: on_ctrl_toggle,
-    on_ctrl_down: on_ctrl_down
+    on_ctrl_down: on_ctrl_down,
+    reset: reset
   };
 } (jQuery, document));
