@@ -5,7 +5,15 @@
   <link rel="stylesheet" type="text/css" href="assets/style/site.css">
 </head>
 <body>
+<header>
+    <h1>game0</h1>
+</header>
 <div class="content">
+  <div>
+    <p id="score">Score: 0</p>
+    <p>Status: <span id="status">Not Started</span></p>
+    <input type="button" id="reset" value="Start" />
+  </div>
   <div id="play_area">
     <div id="group">
       <div id="pa"></div>
@@ -24,14 +32,6 @@
           </tr>
         </table>
       </div>
-    </div>
-  </div>
-  <div id="stats">
-    <div>
-      <h1>Game0</h1>
-      <p id="score">Score:</p>
-      <input type="button" id="reset" value="Reset" />
-      <h2 id="status"></h2>
     </div>
   </div>
 </div>
@@ -81,7 +81,8 @@ function step ()
 }
 
 $('#reset').on ('click', function () {
-  $('#status').text ('');
+  $('#status').text ('In-Progress');
+  $('#reset').prop ('value', 'Re-Start');
   window.clearInterval (timer0);
   game0.reset ();
   timer0 = window.setInterval (step, 1000);
