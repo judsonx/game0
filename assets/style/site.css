@@ -50,10 +50,19 @@ div {
   width: 100%;
   text-align: center;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+#ca table::-moz-selection {
+  background: transparent;
+}
+
+#ca table::selection {
+  background: transparent;
 }
 
 #ca td {

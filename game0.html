@@ -48,6 +48,22 @@ game0.init ({
   score: $('#score')
 });
 
+// See: http://stackoverflow.com/questions/15804296/
+// how-to-prevent-doubletap-zoom-in-ios-and-android
+$('body').on ('touchstart', function (e) {
+  var t2 = e.timeStamp;
+  var t1 = $(this).data('lastTouch') || t2;
+  var dt = t2 - t1;
+  var fingers = e.originalEvent.touches.length;
+  $(this).data('lastTouch', t2);
+  if (!dt || dt > 500 || fingers > 1){
+    return; // not double-tap
+  }
+  e.preventDefault(); // double tap - prevent the zoom
+  // also synthesize click events we just swallowed up
+  $(e.target).trigger('click');
+});
+
 $('#left').on ('click', function () { game0.on_ctrl_left (); });
 $('#right').on ('click', function () { game0.on_ctrl_right (); });
 $('#toggle').on ('click', function () { game0.on_ctrl_toggle (); });
