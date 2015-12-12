@@ -13,6 +13,7 @@
 <div class="content">
   <div>
     <table>
+      <tr><td>Level:</td><td id="level">0</td></tr>
       <tr><td>Score:</td><td id="score">0</td></tr>
       <tr><td>Lines:</td><td id="lines">0</td></tr>
       <tr><td>Status:</td><td id="status">Not Started</td></tr>
@@ -52,6 +53,9 @@ game0.init ({
   game_area: $('#ga'),
   preview_area: $('#pa'),
 });
+
+var current_level = 0;
+var levels = [ 1100, 1000, 900, 800, 700, 600, 500, 400, 300, 200 ];
 
 // See: http://stackoverflow.com/questions/15804296/
 // how-to-prevent-doubletap-zoom-in-ios-and-android
@@ -122,6 +126,21 @@ function pause (timer)
   $('.row > div').css ('opacity', 0);
 }
 
+function set_level (lines)
+{
+  var level = Math.floor (lines / 10);
+  if (level != current_level)
+  {
+    if (level < levels.length)
+    {
+      clearInterval (timer0.id);
+      timer0.id = setInterval (step, levels[level]);
+      current_level = level;
+      $('#level').text (level);
+    }
+  }
+}
+
 function step ()
 {
   if (!game0.step ())
@@ -130,8 +149,10 @@ function step ()
     set_status ('Game Over!');
     $('#pause').prop ('disabled', true);
   }
+  var lines = game0.get_lines ();
   $('#score').text (game0.get_score ());
-  $('#lines').text (game0.get_lines ());
+  $('#lines').text (lines);
+  set_level (lines);
 }
 
 $('#reset').on ('click', function () {
@@ -140,6 +161,7 @@ $('#reset').on ('click', function () {
   set_status ('In-Progress');
   $('#reset').prop ('value', 'Re-Start');
   game0.reset ();
+  set_level (0);
   unpause ();
 });
 
