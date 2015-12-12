@@ -1,0 +1,52 @@
+#pa, #ga, #ca {
+  padding: 0;
+  background-color: #303030;
+  border: 2px solid #10101;
+  margin: 10px;
+}
+
+#pa {
+  float: left;
+}
+
+#ga {
+  float: left;
+}
+
+.row
+{
+  float: none;
+  clear: both;
+}
+
+.row > div
+{
+  float: left;
+  background-color: #808080;
+  margin: 0;
+  padding: 0;
+  border: 1px solid black;
+  width: 25px;
+  height: 25px;
+  min-height: 1px;
+}
+
+#ca {
+  float:left;
+  position: relative;
+  left: 100px;
+  width: 300px;
+  height: 100px;
+}
+
+.s0 {
+  background-color: #FF0000 !important;
+}
+
+.s1 {
+  background-color: #00FF00 !important;
+}
+
+.s2 {
+  background-color: #0000FF !important;
+}

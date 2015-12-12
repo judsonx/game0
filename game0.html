@@ -1,0 +1,61 @@
+<!doctype HTML>
+<html>
+<head>
+  <title>Game0</title>
+  <link rel="stylesheet" type="text/css" href="assets/style/site.css">
+</head>
+<body>
+<div class="content">
+  <div id="pa"></div>
+  <div id="ga"></div>
+  <div id="ca">
+    <div>
+      <span id="toggle_ctrl">Toggle</span>
+    </div>
+    <div>
+      <span id="left_ctrl">Left</span>
+      <span id="right_ctrl">Right</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js">
+</script>
+<script src="assets/js/game0.js"></script>
+<script>
+game0.init ({
+  game_area: $('#ga'),
+  preview_area: $('#pa')
+});
+
+$('#left_ctrl').on ('click', function () { game0.on_ctrl_left (); });
+$('#right_ctrl').on ('click', function () { game0.on_ctrl_right (); });
+
+$(document).on ('keydown', function (e) {
+  switch (e.keyCode)
+  {
+  case 38:
+    game0.on_ctrl_toggle ();
+    break;
+  case 40:
+    game0.on_ctrl_down ();
+    break;
+  case 37:
+    game0.on_ctrl_left ();
+    break;
+  case 39:
+    game0.on_ctrl_right ();
+    break;
+  }
+});
+
+var timer0 = window.setInterval (function () {
+  if (!game0.step ())
+  {
+    window.clearInterval (timer0);
+    alert ('Done');
+  }
+}, 300);
+</script>
+</body>
+</html>
