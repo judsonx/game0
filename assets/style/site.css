@@ -49,6 +49,11 @@ div {
 {
   width: 100%;
   text-align: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 #ca td {
