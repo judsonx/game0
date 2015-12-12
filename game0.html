@@ -108,6 +108,7 @@ function unpause ()
   e.prop ('value', "Pause").on ('click', pause);
   set_status ('In-Progress');
   game0.set_paused (false);
+  $('.row > div').css ('opacity', 1);
 }
 
 function pause (timer)
@@ -118,6 +119,7 @@ function pause (timer)
   e.prop ('value', "Continue").on ('click', unpause);
   set_status ('Paused');
   game0.set_paused (true);
+  $('.row > div').css ('opacity', 0);
 }
 
 function step ()
