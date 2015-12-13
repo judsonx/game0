@@ -96,7 +96,7 @@ $(document).on ('keydown', function (e) {
   }
 });
 
-var timer0 = { interval: 1000 }
+var timer0 = { interval: 1000, id: null };
 
 function set_status (status)
 {
@@ -120,6 +120,7 @@ function pause (timer)
   var e = $('#pause');
   e.unbind ('click');
   clearInterval (timer0.id);
+  timer0.id = null;
   e.prop ('value', "Continue").on ('click', unpause);
   set_status ('Paused');
   game0.set_paused (true);
@@ -133,8 +134,11 @@ function set_level (lines)
   {
     if (level < levels.length)
     {
-      clearInterval (timer0.id);
-      timer0.id = setInterval (step, levels[level]);
+      if (timer0.id)
+      {
+        clearInterval (timer0.id);
+        timer0.id = setInterval (step, levels[level]);
+      }
       current_level = level;
       $('#level').text (level);
     }
@@ -146,6 +150,7 @@ function step ()
   if (!game0.step ())
   {
     clearInterval (timer0.id);
+    timer0.id = null;
     set_status ('Game Over!');
     $('#pause').prop ('disabled', true);
   }
@@ -157,7 +162,10 @@ function step ()
 
 $('#reset').on ('click', function () {
   if (timer0.hasOwnProperty ('id'))
+  {
     clearInterval (timer0.id);
+    timer0.id = null;
+  }
   set_status ('In-Progress');
   $('#reset').prop ('value', 'Re-Start');
   game0.reset ();
