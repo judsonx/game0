@@ -68,9 +68,16 @@
       </div>
       <div class="modal-body">
         <table>
+          <caption>Statistics</caption>
           <tr><td>Level:</td><td class="level"></td></tr>
           <tr><td>Score:</td><td class="score"></td></tr>
           <tr><td>Lines:</td><td class="lines"></td></tr>
+        </table>
+        <table id="highscore">
+          <caption>High Score</caption>
+          <tr><td>Level:</td><td class="bestlevel"></td></tr>
+          <tr><td>Score:</td><td class="bestscore"></td></tr>
+          <tr><td>Lines:</td><td class="bestlines"></td></tr>
         </table>
       </div>
       <div class="modal-footer">
@@ -122,6 +129,43 @@ function update_cell (element, id)
 function set_status (status)
 {
   $('#status').text (status);
+}
+
+function get_highscore ()
+{
+  if (typeof ('Storage') !== "undefined")
+    return JSON.parse (localStorage.getItem ('highscore'));
+}
+
+function store_highscore (stats)
+{
+  var current = get_highscore ();
+  if (current)
+  {
+    if ((current.score || 0) < stats.score)
+      localStorage.setItem ('highscore', JSON.stringify (stats));
+  }
+  else if (typeof ('Storage') !== "undefined")
+  {
+    localStorage.setItem ('highscore', JSON.stringify (stats));
+  }
+}
+
+function open_gameover_dlg ()
+{
+  var highscore = get_highscore ();
+  if (highscore)
+  {
+    $('#highscore').toggle (true);
+    $('.bestlevel').text (highscore.level || 0);
+    $('.bestscore').text (highscore.score || 0);
+    $('.bestlines').text (highscore.lines || 0);
+  }
+  else
+  {
+    $('#highscore').toggle (false);
+  }
+  $('#gameoverdlg').modal ('show');
 }
 
 function main ()
@@ -228,7 +272,8 @@ function main ()
       timer0.id = null;
       set_status ('Game Over!');
       $('#pause').prop ('disabled', true);
-      $('#gameoverdlg').modal ('show');
+      open_gameover_dlg ();
+      store_highscore (stats);
     }
   }
 
