@@ -346,8 +346,11 @@ var game0 = (function ($, document) {
   {
     for (var i = row; i > 0; --i)
       state[i] = state[i-1];
+    var empty_row = [];
     for (var j = 0; j < COLS; ++j)
-      state[0][j] = CELL_EMPTY;
+      empty_row[j] = CELL_EMPTY;
+
+    state[0] = empty_row;
   }
 
   function clear_full_rows (state)
