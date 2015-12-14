@@ -5,28 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.25">
   <title>Game0</title>
   <link rel="stylesheet" type="text/css" href="assets/style/site.css">
+  <link rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+    integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
+    crossorigin="anonymous"
+  >
 </head>
 <body>
 <header>
     <h1>game0</h1>
 </header>
-<div class="content">
+<div id="content">
   <div>
-    <table>
-      <tr><td>Level:</td><td id="level">0</td></tr>
-      <tr><td>Score:</td><td id="score">0</td></tr>
-      <tr><td>Lines:</td><td id="lines">0</td></tr>
-      <tr><td>Status:</td><td id="status">Not Started</td></tr>
+    <table id="stats">
       <tr>
-        <td><input type="button" id="reset" value="Start"/></td>
-        <td><input type="button" id="pause" value="Pause" disabled/></td>
+        <td rowspan="5">
+          <button type="button" class="btn btn-default" id="reset"
+          >Start</button>
+          <br/><br/>
+          <button type="button" class="btn btn-default" id="pause" disabled/
+          >Pause</button>
+        </td>
       </tr>
+      <tr><td>Level:</td><td class="level"></td></tr>
+      <tr><td>Score:</td><td class="score"></td></tr>
+      <tr><td>Lines:</td><td class="lines"></td></tr>
+      <tr><td>Status:</td><td id="status">Not Started</td></tr>
     </table>
   </div>
   <div id="play_area">
     <div id="group">
-      <div id="pa"></div>
-      <div id="ga"></div>
+      <div class="grid">
+        <div id="pa"></div>
+      </div>
+      <div class="grid">
+        <div id="ga"></div>
+      </div>
       <div id="ca">
         <table>
           <tr>
@@ -45,8 +59,35 @@
   </div>
 </div>
 
+<div class="modal fade" id="gameoverdlg" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Game Over!</h4>
+      </div>
+      <div class="modal-body">
+        <table>
+          <tr><td>Level:</td><td class="level"></td></tr>
+          <tr><td>Score:</td><td class="score"></td></tr>
+          <tr><td>Lines:</td><td class="lines"></td></tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"
+        >Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js">
 </script>
+<script
+  src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+  integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+  crossorigin="anonymous"
+></script>
 <script src="assets/js/game0.js"></script>
 <script>
 game0.init ({
@@ -109,7 +150,7 @@ function unpause ()
   e.prop ('disabled', false);
   e.unbind ('click');
   timer0.id = setInterval (step, timer0.interval);
-  e.prop ('value', "Pause").on ('click', pause);
+  e.text ('Pause').on ('click', pause);
   set_status ('In-Progress');
   game0.set_paused (false);
   $('.row > div').css ('opacity', 1);
@@ -121,10 +162,17 @@ function pause (timer)
   e.unbind ('click');
   clearInterval (timer0.id);
   timer0.id = null;
-  e.prop ('value', "Continue").on ('click', unpause);
+  e.text ('Continue').on ('click', unpause);
   set_status ('Paused');
   game0.set_paused (true);
   $('.row > div').css ('opacity', 0);
+}
+
+function update_stats ()
+{
+  $('.level').text (current_level);
+  $('.score').text (game0.get_score ());
+  $('.lines').text (game0.get_lines ());
 }
 
 function set_level (lines)
@@ -140,24 +188,24 @@ function set_level (lines)
         timer0.id = setInterval (step, levels[level]);
       }
       current_level = level;
-      $('#level').text (level);
     }
   }
 }
 
 function step ()
 {
-  if (!game0.step ())
+  var result = game0.step ();
+  set_level (game0.get_lines ());
+  update_stats ();
+
+  if (!result)
   {
     clearInterval (timer0.id);
     timer0.id = null;
     set_status ('Game Over!');
     $('#pause').prop ('disabled', true);
+    $('#gameoverdlg').modal ('show');
   }
-  var lines = game0.get_lines ();
-  $('#score').text (game0.get_score ());
-  $('#lines').text (lines);
-  set_level (lines);
 }
 
 $('#reset').on ('click', function () {
@@ -167,9 +215,10 @@ $('#reset').on ('click', function () {
     timer0.id = null;
   }
   set_status ('In-Progress');
-  $('#reset').prop ('value', 'Re-Start');
+  $('#reset').text ('Re-Start');
   game0.reset ();
   set_level (0);
+  update_stats ();
   unpause ();
 });
 
