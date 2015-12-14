@@ -272,6 +272,8 @@ var game0 = (function ($, document) {
     update_preview_cb (shape);
     reset_pos ();
     var count = clear_full_rows (state_);
+    if (count)
+      update_game_cb (state_, state_);
     score_ += Math.pow (count, 2);
     lines_ += count;
 
