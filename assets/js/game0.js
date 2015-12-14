@@ -361,6 +361,7 @@ var game0 = (function ($, document) {
       if (is_full_row (state[i]))
       {
         remove_row (state, i);
+        ++i;
         ++count;
       }
     }
