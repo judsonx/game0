@@ -90,137 +90,221 @@
 ></script>
 <script src="assets/js/game0.js"></script>
 <script>
-game0.init ({
-  game_area: $('#ga'),
-  preview_area: $('#pa'),
-});
 
-var current_level = 0;
-var levels = [ 1100, 1000, 900, 800, 700, 600, 500, 400, 300, 200, 150 ];
-
-// See: http://stackoverflow.com/questions/15804296/
-// how-to-prevent-doubletap-zoom-in-ios-and-android
-$('body').on ('touchstart', function (e) {
-  var t2 = e.timeStamp;
-  var t1 = $(this).data('lastTouch') || t2;
-  var dt = t2 - t1;
-  var fingers = e.originalEvent.touches.length;
-  $(this).data('lastTouch', t2);
-  if (!dt || dt > 500 || fingers > 1){
-    return; // not double-tap
-  }
-  e.preventDefault(); // double tap - prevent the zoom
-  // also synthesize click events we just swallowed up
-  $(e.target).trigger('click');
-});
-
-$('#left').on ('click', function () { game0.on_ctrl_left (); });
-$('#right').on ('click', function () { game0.on_ctrl_right (); });
-$('#toggle').on ('click', function () { game0.on_ctrl_toggle (); });
-$('#down').on ('click', function () { game0.on_ctrl_down (); });
-
-$(document).on ('keydown', function (e) {
-  switch (e.keyCode)
+function build_grid (element, N_ROWS, N_COLS)
+{
+  for (var i = 0; i < N_ROWS; ++i)
   {
-  case 38:
-    game0.on_ctrl_toggle ();
-    return false;
-  case 40:
-    game0.on_ctrl_down ();
-    return false;
-  case 37:
-    game0.on_ctrl_left ();
-    return false;
-  case 39:
-    game0.on_ctrl_right ();
-    return false;
+    var row = $(document.createElement ('div')).prop ({class: 'row'});
+    for (var j = 0; j < N_COLS; ++j)
+    {
+      $(document.createElement ('div')).appendTo (row);
+    }
+    row.appendTo (element);
   }
-});
+}
 
-var timer0 = { interval: 1000, id: null };
+function update_cell (element, id)
+{
+  element.removeClass ('s0 s1 s2 s3 s4');
+  var map = [
+    function (e) {},
+    function (e) { e.addClass ('s0'); },
+    function (e) { e.addClass ('s1'); },
+    function (e) { e.addClass ('s2'); },
+    function (e) { e.addClass ('s3'); },
+    function (e) { e.addClass ('s4'); },
+  ];
+
+  map[id] (element);
+}
 
 function set_status (status)
 {
   $('#status').text (status);
 }
 
-function unpause ()
+function main ()
 {
-  var e = $('#pause');
-  e.prop ('disabled', false);
-  e.unbind ('click');
-  timer0.id = setInterval (step, timer0.interval);
-  e.text ('Pause').on ('click', pause);
-  set_status ('In-Progress');
-  game0.set_paused (false);
-  $('.row > div').css ('opacity', 1);
-}
+  var PREVIEW_SIZE = 4;
 
-function pause (timer)
-{
-  var e = $('#pause');
-  e.unbind ('click');
-  clearInterval (timer0.id);
-  timer0.id = null;
-  e.text ('Continue').on ('click', unpause);
-  set_status ('Paused');
-  game0.set_paused (true);
-  $('.row > div').css ('opacity', 0);
-}
+  var GAME_AREA = $('#ga');
+  var PREVIEW_AREA = $('#pa');
+  var ROWS = 20;
+  var COLS = 10;
 
-function update_stats ()
-{
-  $('.level').text (current_level);
-  $('.score').text (game0.get_score ());
-  $('.lines').text (game0.get_lines ());
-}
+  var current_level = 0;
+  var levels = [ 1100, 1000, 900, 800, 700, 600, 500, 400, 300, 200, 150 ];
 
-function set_level (lines)
-{
-  var level = Math.floor (lines / 10);
-  if (level != current_level)
+  var timer0 = { id: null };
+
+  function is_paused ()
   {
-    if (level < levels.length)
+    return timer0.id == null;
+  }
+
+  function update_preview (shape)
+  {
+    PREVIEW_AREA.children ().each (function (row_index, row_div) {
+      $(row_div).children ().each (function (col_index, cell_div) {
+        var value = 0;
+        if (row_index < shape.size.y && col_index <= shape.size.x)
+        {
+          if (shape.grid[row_index][col_index])
+            value = shape.index;
+        }
+        update_cell ($(cell_div), value);
+      })
+    });
+  }
+
+  function update_game (state0, state1)
+  {
+    GAME_AREA.children ().each (function (row_index, row_div) {
+       $(row_div).children ().each (function (col_index, cell_div) {
+         if (state0[row_index][col_index])
+           update_cell ($(cell_div), state0[row_index][col_index]);
+         else
+           update_cell ($(cell_div), state1[row_index][col_index]);
+       })
+    });
+  }
+
+  function unpause ()
+  {
+    var e = $('#pause');
+    e.prop ('disabled', false);
+    e.unbind ('click');
+    timer0.id = setInterval (step, levels[current_level]);
+    e.text ('Pause').on ('click', pause);
+    set_status ('In-Progress');
+    $('.row > div').css ('opacity', 1);
+  }
+
+  function pause (timer)
+  {
+    var e = $('#pause');
+    e.unbind ('click');
+    clearInterval (timer0.id);
+    timer0.id = null;
+    e.text ('Continue').on ('click', unpause);
+    set_status ('Paused');
+    $('.row > div').css ('opacity', 0);
+  }
+
+  function update_stats (level, s)
+  {
+    $('.level').text (level);
+    $('.score').text (s.score);
+    $('.lines').text (s.lines);
+  }
+
+  function set_level (lines)
+  {
+    var level = Math.floor (lines / 10);
+    if (level != current_level)
     {
-      if (timer0.id)
+      if (level < levels.length)
       {
-        clearInterval (timer0.id);
-        timer0.id = setInterval (step, levels[level]);
+        if (timer0.id)
+        {
+          clearInterval (timer0.id);
+          timer0.id = setInterval (step, levels[level]);
+        }
+        current_level = level;
       }
-      current_level = level;
     }
   }
+
+  function step ()
+  {
+    var stats = game0.step ();
+    set_level (stats.lines);
+    update_stats (current_level, stats);
+
+    if (stats.done)
+    {
+      clearInterval (timer0.id);
+      timer0.id = null;
+      set_status ('Game Over!');
+      $('#pause').prop ('disabled', true);
+      $('#gameoverdlg').modal ('show');
+    }
+  }
+
+  build_grid (GAME_AREA, ROWS, COLS);
+  build_grid (PREVIEW_AREA, PREVIEW_SIZE, PREVIEW_SIZE);
+
+  game0.init ({
+    preview_cb: update_preview,
+    game_cb: update_game,
+    n_rows: ROWS,
+    n_cols: COLS
+  });
+
+  // See: http://stackoverflow.com/questions/15804296/
+  // how-to-prevent-doubletap-zoom-in-ios-and-android
+  $('body').on ('touchstart', function (e) {
+    var t2 = e.timeStamp;
+    var t1 = $(this).data('lastTouch') || t2;
+    var dt = t2 - t1;
+    var fingers = e.originalEvent.touches.length;
+    $(this).data('lastTouch', t2);
+    if (!dt || dt > 500 || fingers > 1){
+      return; // not double-tap
+    }
+    e.preventDefault(); // double tap - prevent the zoom
+    // also synthesize click events we just swallowed up
+    $(e.target).trigger('click');
+  });
+
+  $('#left').on ('click', function () {
+    if (!is_paused ()) game0.on_ctrl_left ();
+  });
+  $('#right').on ('click', function () {
+    if (!is_paused ()) game0.on_ctrl_right ();
+  });
+  $('#toggle').on ('click', function () {
+    if (!is_paused ()) game0.on_ctrl_toggle ();
+  });
+  $('#down').on ('click', function () {
+    if (!is_paused ()) game0.on_ctrl_down ();
+  });
+
+  $(document).on ('keydown', function (e) {
+    switch (e.keyCode)
+    {
+    case 38:
+      if (!is_paused ()) game0.on_ctrl_toggle ();
+      return false;
+    case 40:
+      if (!is_paused ()) game0.on_ctrl_down ();
+      return false;
+    case 37:
+      if (!is_paused ()) game0.on_ctrl_left ();
+      return false;
+    case 39:
+      if (!is_paused ()) game0.on_ctrl_right ();
+      return false;
+    }
+  });
+
+  $('#reset').on ('click', function () {
+    if (!is_paused ())
+    {
+      clearInterval (timer0.id);
+      timer0.id = null;
+    }
+    set_status ('In-Progress');
+    $('#reset').text ('Re-Start');
+    var stats = game0.reset ();
+    set_level (0);
+    update_stats (current_level, stats);
+    unpause ();
+  });
 }
 
-function step ()
-{
-  var result = game0.step ();
-  set_level (game0.get_lines ());
-  update_stats ();
-
-  if (!result)
-  {
-    clearInterval (timer0.id);
-    timer0.id = null;
-    set_status ('Game Over!');
-    $('#pause').prop ('disabled', true);
-    $('#gameoverdlg').modal ('show');
-  }
-}
-
-$('#reset').on ('click', function () {
-  if (timer0.hasOwnProperty ('id'))
-  {
-    clearInterval (timer0.id);
-    timer0.id = null;
-  }
-  set_status ('In-Progress');
-  $('#reset').text ('Re-Start');
-  game0.reset ();
-  set_level (0);
-  update_stats ();
-  unpause ();
-});
+main ();
 
 </script>
 </body>
