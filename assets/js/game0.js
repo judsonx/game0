@@ -271,10 +271,9 @@ var game0 = (function ($, document) {
     var shape = shapes_[next_shape_][0];
     update_preview_cb (shape);
     reset_pos ();
-    var result = clear_full_rows (state_);
-    state_ = result.state;
-    score_ += Math.pow (result.count, 2);
-    lines_ += result.count;
+    var count = clear_full_rows (state_);
+    score_ += Math.pow (count, 2);
+    lines_ += count;
 
     return { score: score_, lines: lines_, done: false };
   }
@@ -343,32 +342,27 @@ var game0 = (function ($, document) {
     return true;
   }
 
+  function remove_row (state, row)
+  {
+    for (var i = row; i > 0; --i)
+      state[i] = state[i-1];
+    for (var j = 0; j < COLS; ++j)
+      state[0][j] = CELL_EMPTY;
+  }
+
   function clear_full_rows (state)
   {
     var count = 0;
-    var out = [];
     for (var i = ROWS - 1; i >= 0; --i)
     {
-      if (!is_full_row (state[i]))
+      if (is_full_row (state[i]))
       {
-        out.push (state[i]);
-      }
-      else
-      {
+        remove_row (state, i);
         ++count;
       }
     }
 
-    for (var j = out.length; j < ROWS; ++j)
-    {
-      var row = [];
-      for (var k = 0; k < COLS; ++k)
-        row.push (CELL_EMPTY);
-      out.push (row);
-    }
-
-    out.reverse ();
-    return { state: out, count: count };
+    return count;
   }
 
   return {
