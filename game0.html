@@ -13,30 +13,32 @@
 </head>
 <body>
 <header>
+  <div>
     <h1>game0</h1>
+  </div>
 </header>
 <div id="content">
-  <div>
-    <table id="stats">
-      <tr>
-        <td rowspan="4">
-          <button type="button" class="btn btn-default" id="reset"
-          >Start</button>
-          <br/><br/>
-          <button type="button" class="btn btn-default" id="pause" disabled
-          >Pause</button>
-        </td>
-        <td>Level:</td><td class="level"></td>
-      </tr>
-      <tr><td>Score:</td><td class="score"></td></tr>
-      <tr><td>Lines:</td><td class="lines"></td></tr>
-      <tr><td>Status:</td><td id="status">Not Started</td></tr>
-    </table>
-  </div>
   <div id="play_area">
     <div id="group">
       <div class="grid">
         <div id="pa"></div>
+        <div id="stats">
+          <div>
+            <button type="button" class="btn btn-default" id="reset"
+            >Start</button>
+          </div>
+          <div>
+            <button type="button" class="btn btn-default" id="pause" disabled
+            >Pause</button>
+          </div>
+          <table>
+            <tr><th>Level:</th><td class="level"></td></tr>
+            <tr><th>Score:</th><td class="score"></td></tr>
+            <tr><th>Lines:</th><td class="lines"></td></tr>
+            <tr><th colspan="2">Status:</th></tr>
+            <tr><td colspan="2" id="status">Not Started</td></tr>
+          </table>
+        </div>
       </div>
       <div class="grid">
         <div id="ga"></div>
