@@ -222,7 +222,7 @@ function main ()
     timer0.id = setInterval (step, levels[current_level]);
     e.text ('Pause').on ('click', pause);
     set_status ('In-Progress');
-    $('.row > div').css ('opacity', 1);
+    $('.row > div').removeClass ('paused');
   }
 
   function pause (timer)
@@ -233,7 +233,7 @@ function main ()
     timer0.id = null;
     e.text ('Continue').on ('click', unpause);
     set_status ('Paused');
-    $('.row > div').css ('opacity', 0);
+    $('.row > div').addClass ('paused');
   }
 
   function update_stats (level, s)
