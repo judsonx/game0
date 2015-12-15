@@ -273,6 +273,7 @@ function main ()
       set_status ('Game Over!');
       $('#pause').prop ('disabled', true);
       open_gameover_dlg ();
+      stats.level = current_level;
       store_highscore (stats);
     }
   }
